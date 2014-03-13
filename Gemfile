@@ -29,7 +29,11 @@ gem 'jbuilder', '~> 1.2'
 
 # For Heroku
 gem 'rails_12factor', group: :production
-
+gem 'pry-rails'
+gem 'omniauth'
+gem 'devise'
+gem 'omniauth-github', :git => 'git://github.com/intridea/omniauth-github.git'
+gem 'omniauth-fitbit'
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
