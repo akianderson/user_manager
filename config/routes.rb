@@ -1,9 +1,14 @@
 UserManager::Application.routes.draw do
-  devise_for :users
+  devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks" }
+
+  devise_scope :user do
+    get 'sign_out', :to => 'devise/sessions#destroy'
+  end
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
-  
-  match '/auth/:provider/callback' => 'sessions#create', :via => :all
+  get 'users' => 'users#index'
+  root 'users#index'
+  # match '/auth/:provider/callback' => 'sessions#create', :via => :all
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
 
