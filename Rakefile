@@ -3,4 +3,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-GrumpyNews::Application.load_tasks
+UserManager::Application.load_tasks
