@@ -1,14 +1,30 @@
 class Authorization < ActiveRecord::Base
   belongs_to :user
-  validates_presence_of :user_id, :uid, :provider
-  validates_uniqueness_of :uid, :scope => :provider
+  belongs_to :client
+  before_create :generate_tokens
 
-  def self.find_from_hash(hash)
-    find_by_provider_and_uid(hash['provider'], hash['uid'])
+  def self.prune!
+    delete_all(["created_at < ?", 3.days.ago])
+  end
+  
+  def generate_tokens
+    self.code, self.access_token, self.refresh_token = SecureRandom.hex(16), SecureRandom.hex(16), SecureRandom.hex(16)
   end
 
-  def self.create_from_hash(hash, user = nil)
-    user ||= User.create_from_hash!(hash)
-    Authorization.create(:user => user, :uid => hash['uid'], :provider => hash['provider'])
+  def redirect_uri_for(redirect_uri)
+    if redirect_uri =~ /\?/
+      redirect_uri + "&code=#{code}&response_type=code&state=#{state}"
+    else
+      redirect_uri + "?code=#{code}&response_type=code&state=#{state}"
+    end
+  end
+
+  def self.authenticate(code, application_id)
+    Authorization.where("code = ? AND client_id = ?", code, application_id.to_s).first
+  end
+
+  # Note: This is currently configured through devise, and matches the AuthController access token life
+  def start_expiry_period!
+    self.update_attribute(:access_token_expires_at, Time.now + Devise.timeout_in)
   end
 end

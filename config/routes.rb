@@ -1,6 +1,11 @@
 UserManager::Application.routes.draw do
   devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks" }
 
+  match '/auth/grumpy/authorize' => 'sessions#authorize', :via => [:get, :post]
+  match '/auth/grumpy/access_token' => 'sessions#access_token', :via => [:get, :post]
+  match '/auth/grumpy/user' => 'sessions#user', :via => [:get, :post]
+  match '/oauth/token' => 'sessions#access_token', :via => [:get, :post]
+
   devise_scope :user do
     get 'sign_out', :to => 'devise/sessions#destroy'
   end

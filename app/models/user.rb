@@ -15,7 +15,7 @@ class User < ActiveRecord::Base
     where(auth.slice(:provider, :uid)).first_or_create do |user|
       user.provider = auth.provider
       user.uid = auth.uid
-      user.email = auth.info.email || "" # there is a not-null constraint on email
+      user.email = auth.info.email || SecureRandom.hex(16) # there is a not-null constraint on email
       user.password = Devise.friendly_token[0,20]
       user.name = auth.info.name   # assuming the user model has a name
     end
