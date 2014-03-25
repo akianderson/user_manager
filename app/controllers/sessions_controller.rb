@@ -1,4 +1,5 @@
 class SessionsController < ApplicationController
+  before_filter :authenticate_user_from_token!, :only => [:user]
 	before_filter :authenticate_user!, :except => [:access_token]
 	skip_before_filter :verify_authenticity_token, :only => [:access_token]
 
@@ -32,14 +33,14 @@ class SessionsController < ApplicationController
 
   def user
     hash = {
-      :provider => 'grumpy',
+      :provider => current_user.provider,
       :id => current_user.id.to_s,
+      :uid => current_user.uid,
       :info => {
          :email      => current_user.email,
       },
       :extra => {
-         :first_name => current_user.first_name,
-         :last_name  => current_user.last_name
+         :name => current_user.name,
       }
     }
 
@@ -52,6 +53,15 @@ class SessionsController < ApplicationController
 
     respond_to do |format|
       format.any { render :json => response.to_json }
+    end
+  end
+
+  private
+  def authenticate_user_from_token!
+    user = User.where("authorizations.access_token = ? AND (authorizations.access_token_expires_at IS NULL OR authorizations.access_token_expires_at > ?)", params[:oauth_token], Time.now).joins(:authorizations).select("users.*").first
+
+    if user
+      sign_in user, store: false
     end
   end
 end

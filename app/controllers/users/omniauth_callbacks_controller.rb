@@ -1,17 +1,18 @@
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
+  before_filter :authenticate_user!
   def facebook
-    authenticate_user("facebook")
+    omniauth_user("facebook")
   end
 
   def fitbit
-    authenticate_user("fitbit")
+    omniauth_user("fitbit")
   end
   
   def github
-    authenticate_user("github")
+    omniauth_user("github")
   end
 
-  def authenticate_user(provider)
+  def omniauth_user(provider)
     @user = User.find_for_oauth(request.env["omniauth.auth"])
 
     if @user.persisted?
